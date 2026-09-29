@@ -1,0 +1,47 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String   @id
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+model Visitor {
+  id          String   @id
+  createdAt   DateTime @default(now())
+  lastVisitAt DateTime
+  visitCount  Int
+}
+
+model Habit {
+  id         String   @id
+  ownerId    String
+  name       String
+  color      String?
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  orderIndex Int?
+
+  @@index([ownerId, isArchived], name: "idx_habit_owner_archived")
+}
+
+model TimeEntry {
+  id              String   @id
+  ownerId         String
+  habitId         String
+  date            String   // YYYY-MM-DD
+  durationMinutes Int
+  source          String?
+  createdAt       DateTime @default(now())
+
+  @@index([ownerId, date], name: "idx_timeentry_owner_date")
+  @@index([habitId, date], name: "idx_timeentry_habit_date")
+}
